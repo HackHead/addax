@@ -1,8 +1,5 @@
 import styled, { css } from 'styled-components';
 
-// Card, Button, Typography, Modal, TextField, Label, ButtonGroup, Delimiter, Checkbox, Toggle, Select, MenuItem
-
-
 // THEME
 
 const theme = {
@@ -16,6 +13,15 @@ const theme = {
         dark: '#181C32',
         black: '#171724',
         gray: '#2b2b40',
+        primaryRGB: '0, 158, 247',
+        secondaryRGB: '225, 227, 234',
+        successRGB: '80, 205, 137',
+        infoRGB: '114, 57, 234',
+        warningRGB: '255, 199, 0',
+        dangerRGB: '241, 65, 108',
+        darkRGB: '24, 28, 50',
+        blackRGB: '23, 23, 36',
+        grayRGB: '43, 43, 64',
         bodyColor: '#FFFFFF',
         bodyColorRGB: '255 255 255',
         bodyBg: '#1e1e2d',
@@ -63,7 +69,7 @@ const theme = {
 
 
 
-export type ColorVariant = 'primary' | 'secondary' | 'success' | 'info' | 'warning' | 'danger' | 'dark' | 'black' | 'gray';
+export type ColorVariant = 'primary' | 'secondary' | 'success' | 'info' | 'warning' | 'danger' | 'dark' | 'black' | 'gray' | 'transparent';
 export type Radius = keyof typeof theme.radius;
 export type boxShadow = keyof typeof theme.boxShadow;
 
@@ -83,21 +89,68 @@ export interface BlockProps {
     pb?: string;
     pr?: string;
     pl?: string;
+    fullwidth?: number; // use number to avoid "Not boolean error"
+    w?: string;
+    h?: string;
+    bordercolor?: ColorVariant;
+    borderwidth?: string;
+    borderstyle?: string;
+    borderalpha?: number;
+    bg?: ColorVariant;
+    alpha?: number;
 }
 
-export const Block = styled.div<BlockProps>`
+export const Block = styled.div<BlockProps>` 
+  overflow: hidden;
   box-sizing: border-box;
   margin: ${({ mx, my, mt, mb }) =>
         `${my || mt || '0'} ${mx || '0'} ${my || mb || '0'}`};
   padding: ${({ px, py, pt, pb }) =>
         `${py || pt || '0'} ${px || '0'} ${py || pb || '0'}`};
+  width: ${({fullwidth, w}) => {
+    return w ? w : fullwidth ? '100%' : 'auto';
+  }};
+  height: ${({h}) => {
+    return h ? h : 'auto';
+  }};
+  border-color: ${({bordercolor, borderalpha}) => {
+    return bordercolor === 'primary' ? `rgba(${theme.colors.primaryRGB}, ${borderalpha || 1})` :
+                bordercolor === 'success' ? `rgba(${theme.colors.successRGB}, ${borderalpha || 1})` :
+                    bordercolor === 'info' ? `rgba(${theme.colors.infoRGB}, ${borderalpha || 1})` :
+                        bordercolor === 'warning' ? `rgba(${theme.colors.warningRGB}, ${borderalpha || 1})` :
+                            bordercolor === 'danger' ? `rgba(${theme.colors.dangerRGB}, ${borderalpha || 1})` :
+                                bordercolor === 'dark' ? `rgba(${theme.colors.darkRGB}, ${borderalpha || 1})` :
+                                    bordercolor === 'black' ? `rgba(${theme.colors.blackRGB}, ${borderalpha || 1})` :
+                                        bordercolor === 'gray' ? `rgba(${theme.colors.grayRGB}, ${borderalpha || 1})` : `rgba(${theme.colors.secondaryRGB}, .05 )`
+  }};
+  border-width: ${({borderwidth}) => {
+    return borderwidth ? borderwidth : 'none';
+  }};
+  border-style: ${({borderstyle}) => {
+    return borderstyle ? borderstyle : 'none';
+  }};
+  position: relative;
+  background: ${({ bg, alpha }) => {
+    return bg === 'primary' ? `rgba(${theme.colors.primaryRGB}, ${alpha || 1})` :
+                bg === 'success' ? `rgba(${theme.colors.successRGB}, ${alpha || 1})` :
+                    bg === 'info' ? `rgba(${theme.colors.infoRGB}, ${alpha || 1})` :
+                        bg === 'warning' ? `rgba(${theme.colors.warningRGB}, ${alpha || 1})` :
+                            bg === 'danger' ? `rgba(${theme.colors.dangerRGB}, ${alpha || 1})` :
+                                bg === 'dark' ? `rgba(${theme.colors.darkRGB}, ${alpha || 1})` :
+                                    bg === 'black' ? `rgba(${theme.colors.blackRGB}, ${alpha || 1})` :
+                                        bg === 'gray' ? `rgba(${theme.colors.grayRGB}, ${alpha || 1})` :
+                                            bg === 'transparent' ? `transparent` : `transparent`
+    }};
+  &:not(:last-child) {
+    border-right: none;
+  }
 `;
 
 
 
 // ===================== DELIMITER =====================
 export interface DelimiterProps {
-    fullWidth?: boolean,
+    fullwidth?: boolean,
 }
 
 export const Delimiter = styled(Block) <DelimiterProps>`
@@ -105,7 +158,7 @@ export const Delimiter = styled(Block) <DelimiterProps>`
     background: ${theme.colors.secondary};
     margin: 0 auto;
     width: 100%;
-    opacity: 0.25
+    opacity: 0.1
 `;
 
 
@@ -115,9 +168,7 @@ export interface ButtonProps extends BlockProps {
     bg?: ColorVariant;
     color?: ColorVariant;
     radius?: Radius;
-    first?: boolean;
-    last?: boolean;
-    between?: boolean;
+    group?: 'first' | 'last' | 'between'
 }
 
 // ===================== BUTTON GROUP =====================
@@ -146,70 +197,161 @@ export const Button = styled.button<ButtonProps>`
         `${my || mt || '0'} ${mx || '0'} ${my || mb || '0'}`};
     padding: ${({ px, py, pt, pb }) =>
         `${py || pt || '0.85rem'} ${px || '0.85rem'} ${py || pb || '0.85rem'}`};
-    ${({ first }) =>
-        first &&
-        css`
-      border-top-right-radius: 0;
-      border-bottom-right-radius: 0;
-    `}
-
-    ${({ last }) =>
-        last &&
-        css`
-      border-top-left-radius: 0;
-      border-bottom-left-radius: 0;
-    `}
-    ${({ between }) =>
-    between &&
-        css`
-      border-radius: 0;
-    `}
+    ${({ group }) =>
+        group === 'first' ?
+            css`
+                border-top-right-radius: 0;
+                border-bottom-right-radius: 0;
+                ` 
+            :
+        group === 'last' ?
+                css`
+            border-top-left-radius: 0;
+            border-bottom-left-radius: 0;
+            `
+            :
+        group === 'between' ?
+            css`
+                border-radius: 0;
+            `
+        : ''
+    }
     &:hover {
         background: ${theme.colors.secondaryBg};
         transition: all .2s linear;
+    }
+    &:disabled {
+        background: ${theme.colors.gray};
+        cursor: default;
     }
 `;
 
 
 // ===================== TYPEGRAPHY =====================
 export interface TypographyProps {
-
+    color?: ColorVariant;
+    alpha?: number;
+    size?: 'sm' | 'md' | 'lg' | 'xl' | 'xxl';
+    weight?: 'bold' | 'regular' | 'semibold' | 'black' | 'thin';
+    spacing?: number;
+    elipsis?: number;
 }
 
 export const Typography = styled.span<TypographyProps>`
     font-family: ${theme.font.sans};
+    ${({elipsis}) => {
+        return (
+            elipsis && `overflow: hidden; text-overflow: ellipsis; white-space: nowrap;`
+        )
+    }}
     font-weight: 500;
     letter-spacing: 0.04rem;
     display: inline-block;
-    color: ${theme.colors.lightText}
-`;
+    ${({ size, weight, spacing }) => {
+        let fontSize;
+        let fontWeight;
+        let letterSpacing;
+
+        // Set font size
+        if (size === 'sm') {
+            fontSize = '0.7rem';
+        } else if (size === 'md') {
+            fontSize = '0.8rem';
+        } else if (size === 'lg') {
+            fontSize = '1rem';
+        } else if (size === 'xl') {
+            fontSize = '1.5';
+        } else if (size === 'xxl') {
+            fontSize = '2rem';
+        } else {
+            fontSize = '0.95';
+        }
+
+        // Set font weight
+        if (weight === 'bold') {
+            fontWeight = 'bold';
+        } else if (weight === 'regular') {
+            fontWeight = 'normal';
+        } else if (weight === 'semibold') {
+            fontWeight = '500';
+        } else if (weight === 'black') {
+            fontWeight = '900';
+        } else if (weight === 'thin') {
+            fontWeight = '100';
+        }
+
+        // Set letter spacing
+        if (spacing) {
+            letterSpacing = `${spacing / 10}rem`;
+        }
+
+        return `
+            font-size: ${fontSize};
+            font-weight: ${fontWeight};
+            letter-spacing: ${letterSpacing};
+        `;
+    }};
+    color: ${({ color, alpha }) => {
+        return (
+            color === 'primary' ? `rgba(${theme.colors.primaryRGB}, ${alpha || 1})` :
+                color === 'success' ? `rgba(${theme.colors.successRGB}, ${alpha || 1})` :
+                    color === 'info' ? `rgba(${theme.colors.infoRGB}, ${alpha || 1})` :
+                        color === 'warning' ? `rgba(${theme.colors.warningRGB}, ${alpha || 1})` :
+                            color === 'danger' ? `rgba(${theme.colors.dangerRGB}, ${alpha || 1})` :
+                                color === 'dark' ? `rgba(${theme.colors.darkRGB}, ${alpha || 1})` :
+                                    color === 'black' ? `rgba(${theme.colors.blackRGB}, ${alpha || 1})` :
+                                        color === 'gray' ? `rgba(${theme.colors.grayRGB}, ${alpha || 1})` : `rgba(${theme.colors.secondaryRGB}, ${alpha || 1} )`
+           );
+    }};`
 
 
-
+    
 // ===================== FLEXBOX =====================
 export interface FlexBoxProps {
-    alignItems?: 'center' | 'flex-start' | 'flex-end';
-    justifyContent?: 'center' | 'space-between' | 'flex-start' | 'flex-end'
+    alignitems?: 'center' | 'flex-start' | 'flex-end';
+    justifycontent?: 'center' | 'space-between' | 'flex-start' | 'flex-end'
 }
 
 export const FlexBox = styled(Block) <FlexBoxProps>`
     display: flex;
-    align-items: ${({ alignItems }) => alignItems || 'center'};
-    justify-content: ${({ justifyContent }) => justifyContent || 'space-between'};
+    align-items: ${({ alignitems }) => alignitems || 'center'};
+    justify-content: ${({ justifycontent }) => justifycontent || 'space-between'};
 `;
 
 
 
 // ===================== CARD =====================
 export interface CardProps {
-
+    bg?: ColorVariant;
+    radius?: Radius;
 }
+
 export const Card = styled(Block) <CardProps>`
     width: 100%;
     height: auto;
     display: block;
-    background-color: ${theme.colors.bodyBg};
-    border-radius: ${theme.radius.SM};
+    background-color: ${({ bg }) => {
+        return (
+            bg === 'primary' ? theme.colors.primary :
+                bg === 'success' ? theme.colors.success :
+                    bg === 'info' ? theme.colors.info :
+                        bg === 'warning' ? theme.colors.warning :
+                            bg === 'danger' ? theme.colors.danger :
+                                bg === 'dark' ? theme.colors.dark : 
+                                    bg === 'black' ? theme.colors.black :
+                                        bg === 'gray' ? theme.colors.gray : theme.colors.bodyBg
+        );
+    }};
+    border-radius: ${({ radius }) => {
+        return (
+            radius === 'XS' ? theme.radius.XS :
+                radius === 'SM' ? theme.radius.SM :
+                    radius === 'LG' ? theme.radius.LG :
+                        radius === 'XL' ? theme.radius.XL :
+                            radius === 'XXL' ? theme.radius.XXL : '0.2rem'
+                               
+        );
+    }};
     box-shadow: ${theme.boxShadow.SM};
 `;
 
@@ -217,39 +359,48 @@ export const Card = styled(Block) <CardProps>`
 
 // ===================== CONTAINER =====================
 export interface ContainerProps {
-    sm?: boolean;
-    md?: boolean;
-    lg?: boolean;
-    xl?: boolean;
-    xxl?: boolean;
+    size?: 'sm' | 'md' | 'lg' | 'xl' | 'xxl';
     autoX?: boolean;
-    fullWidth?: boolean;
+    fullwidth?: number; // use number to avoid "Not boolean error"
 }
 
 
 
 export const Container = styled(Block) <ContainerProps>`
-        width: ${({ sm, md, lg, xl, xxl }) => {
-        return (
-            sm ? theme.breakpoints.SM :
-                md ? theme.breakpoints.MD :
-                    lg ? theme.breakpoints.LG :
-                        xl ? theme.breakpoints.XL :
-                            xxl ? theme.breakpoints.XXL : '100%'
-        );
-    }
-    };
+        width: ${({ size }) => {
+                return (
+                    size === 'sm' ? theme.breakpoints.SM :
+                        size === 'md' ? theme.breakpoints.MD :
+                            size === 'lg' ? theme.breakpoints.LG :
+                                size === 'xl' ? theme.breakpoints.XL :
+                                    size === 'xxl' ? theme.breakpoints.XXL : '100%'
+                );
+            }
+        };
         margin: ${({ autoX }) => {
-        return (
-            autoX ? '0 auto' : ''
-        );
-    }}
-    `;
+            return (
+                autoX ? '0 auto' : ''
+            );
+        }}
+`;
 
 
 
 // ===================== WRAPPER =====================
 export const Wrapper = styled(Block)``
 
+export interface AbsoluteProps {
+    left?: string;
+    right?: string;
+    top?: string;
+    bottom?: string;
+}
 
+export const Absolute = styled(Wrapper)<AbsoluteProps>`
+    position: absolute;
+    left: ${({left}) => left || 'auto'};
+    right: ${({right}) => right || 'auto'};
+    top: ${({top}) => top || 'auto'};
+    bottom: ${({bottom}) => bottom || 'auto'};
+`
 
