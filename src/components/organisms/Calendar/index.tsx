@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-
+import { v4 as uuidv4 } from 'uuid';
 import { Button, Typography, FlexBox, Card, Container, Delimiter } from "../../styled";
 import CalendarBody from "../CalendarBody";
 import CalendarToolbar from "../CalendarToolbar";
@@ -28,6 +28,7 @@ export interface EventLabel {
 }
 
 export interface CalendarEvent {
+    id: string;
     label?: EventLabel[];
     task: {
         title: string;
@@ -42,20 +43,12 @@ export interface CalendarEvents {
 const Calendar = () => {
     const temp = {
         "2023-01-04": [
-            {
-                task: {
-                    title: 'Test 1',
-                    description: '',
-                }
-            }
+            {id: uuidv4(), task: { title: 'Test 1', description: '' }}
         ],
         "2023-08-07": [
-            {
-                task: {
-                    title: 'Test 2',
-                    description: '',
-                }
-            }
+            {id: uuidv4(), task: {  title: 'Test 2',  description: ''  }},
+            {id: uuidv4(), task: {  title: 'Test 3',  description: ''  }},
+            {id: uuidv4(), task: {  title: 'Test 4',  description: ''  }}
         ]
     }
     const [view, setView] = useState<CalendarView>('month')

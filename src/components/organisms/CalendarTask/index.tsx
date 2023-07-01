@@ -1,5 +1,5 @@
 import { ReactNode } from "react"
-import { Absolute, Card, ColorVariant, FlexBox, Typography } from "../../styled"
+import { Absolute, Card, FlexBox, Typography } from "../../styled"
 
 export interface CalendarTaskProps {
     children?: ReactNode;
