@@ -1,8 +1,8 @@
-import styled, { css } from 'styled-components';
+import styled, { css, keyframes } from 'styled-components';
 
 // THEME
 
-const theme = {
+export const theme = {
     colors: {
         primary: '#009EF7',
         secondary: '#E1E3EA',
@@ -23,7 +23,6 @@ const theme = {
         blackRGB: '23, 23, 36',
         grayRGB: '43, 43, 64',
         bodyColor: '#FFFFFF',
-        bodyColorRGB: '255 255 255',
         bodyBg: '#1e1e2d',
         bodyBgRGB: '30, 30, 45',
         emphasisColor: '#F9F9F9',
@@ -40,6 +39,7 @@ const theme = {
         dangerText: '#ea868f',
         lightText: '#F9F9F9',
         darkText: '#E1E3EA',
+        transparent: 'transparent'
     },
     breakpoints: {
         XS: 0,
@@ -100,50 +100,73 @@ export interface BlockProps {
     alpha?: number;
 }
 
-export const Block = styled.div<BlockProps>` 
+export const Block = styled.div<BlockProps>`
   overflow: hidden;
   box-sizing: border-box;
-  margin: ${({ mx, my, mt, mb }) =>
-        `${my || mt || '0'} ${mx || '0'} ${my || mb || '0'}`};
-  padding: ${({ px, py, pt, pb }) =>
-        `${py || pt || '0'} ${px || '0'} ${py || pb || '0'}`};
-  width: ${({fullwidth, w}) => {
-    return w ? w : fullwidth ? '100%' : 'auto';
+  margin: ${({ mx, my, mt, mb }) => `${my || mt || '0'} ${mx || '0'} ${my || mb || '0'}`};
+  padding: ${({ px, py, pt, pb }) => `${py || pt || '0'} ${px || '0'} ${py || pb || '0'}`};
+  width: ${({ fullwidth, w }) => (w ? w : fullwidth ? '100%' : 'auto')};
+  height: ${({ h }) => (h ? h : 'auto')};
+  border-color: ${({ bordercolor, borderalpha }) => {
+    return bordercolor === 'primary'
+      ? `rgba(${theme.colors.primaryRGB}, ${borderalpha || 1})`
+      : bordercolor === 'success'
+      ? `rgba(${theme.colors.successRGB}, ${borderalpha || 1})`
+      : bordercolor === 'info'
+      ? `rgba(${theme.colors.infoRGB}, ${borderalpha || 1})`
+      : bordercolor === 'warning'
+      ? `rgba(${theme.colors.warningRGB}, ${borderalpha || 1})`
+      : bordercolor === 'danger'
+      ? `rgba(${theme.colors.dangerRGB}, ${borderalpha || 1})`
+      : bordercolor === 'dark'
+      ? `rgba(${theme.colors.darkRGB}, ${borderalpha || 1})`
+      : bordercolor === 'black'
+      ? `rgba(${theme.colors.blackRGB}, ${borderalpha || 1})`
+      : bordercolor === 'gray'
+      ? `rgba(${theme.colors.grayRGB}, ${borderalpha || 1})`
+      : `rgba(${theme.colors.secondaryRGB}, .05 )`;
   }};
-  height: ${({h}) => {
-    return h ? h : 'auto';
-  }};
-  border-color: ${({bordercolor, borderalpha}) => {
-    return bordercolor === 'primary' ? `rgba(${theme.colors.primaryRGB}, ${borderalpha || 1})` :
-                bordercolor === 'success' ? `rgba(${theme.colors.successRGB}, ${borderalpha || 1})` :
-                    bordercolor === 'info' ? `rgba(${theme.colors.infoRGB}, ${borderalpha || 1})` :
-                        bordercolor === 'warning' ? `rgba(${theme.colors.warningRGB}, ${borderalpha || 1})` :
-                            bordercolor === 'danger' ? `rgba(${theme.colors.dangerRGB}, ${borderalpha || 1})` :
-                                bordercolor === 'dark' ? `rgba(${theme.colors.darkRGB}, ${borderalpha || 1})` :
-                                    bordercolor === 'black' ? `rgba(${theme.colors.blackRGB}, ${borderalpha || 1})` :
-                                        bordercolor === 'gray' ? `rgba(${theme.colors.grayRGB}, ${borderalpha || 1})` : `rgba(${theme.colors.secondaryRGB}, .05 )`
-  }};
-  border-width: ${({borderwidth}) => {
-    return borderwidth ? borderwidth : 'none';
-  }};
-  border-style: ${({borderstyle}) => {
-    return borderstyle ? borderstyle : 'none';
-  }};
+  border-width: ${({ borderwidth }) => (borderwidth ? borderwidth : '0')};
+  border-style: ${({ borderstyle }) => (borderstyle ? borderstyle : 'none')};
   position: relative;
   background: ${({ bg, alpha }) => {
-    return bg === 'primary' ? `rgba(${theme.colors.primaryRGB}, ${alpha || 1})` :
-                bg === 'success' ? `rgba(${theme.colors.successRGB}, ${alpha || 1})` :
-                    bg === 'info' ? `rgba(${theme.colors.infoRGB}, ${alpha || 1})` :
-                        bg === 'warning' ? `rgba(${theme.colors.warningRGB}, ${alpha || 1})` :
-                            bg === 'danger' ? `rgba(${theme.colors.dangerRGB}, ${alpha || 1})` :
-                                bg === 'dark' ? `rgba(${theme.colors.darkRGB}, ${alpha || 1})` :
-                                    bg === 'black' ? `rgba(${theme.colors.blackRGB}, ${alpha || 1})` :
-                                        bg === 'gray' ? `rgba(${theme.colors.grayRGB}, ${alpha || 1})` :
-                                            bg === 'transparent' ? `transparent` : `transparent`
-    }};
+    return bg === 'primary'
+      ? `rgba(${theme.colors.primaryRGB}, ${alpha || 1})`
+      : bg === 'success'
+      ? `rgba(${theme.colors.successRGB}, ${alpha || 1})`
+      : bg === 'info'
+      ? `rgba(${theme.colors.infoRGB}, ${alpha || 1})`
+      : bg === 'warning'
+      ? `rgba(${theme.colors.warningRGB}, ${alpha || 1})`
+      : bg === 'danger'
+      ? `rgba(${theme.colors.dangerRGB}, ${alpha || 1})`
+      : bg === 'dark'
+      ? `rgba(${theme.colors.darkRGB}, ${alpha || 1})`
+      : bg === 'black'
+      ? `rgba(${theme.colors.blackRGB}, ${alpha || 1})`
+      : bg === 'gray'
+      ? `rgba(${theme.colors.grayRGB}, ${alpha || 1})`
+      : bg === 'transparent'
+      ? `transparent`
+      : `transparent`;
+  }};
   &:not(:last-child) {
     border-right: none;
   }
+  &::-webkit-scrollbar {
+    width: 0
+  }
+   
+  &::-webkit-scrollbar-track {
+    box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+  }
+   
+  &::-webkit-scrollbar-thumb {
+    background-color: ${theme.colors.primary};
+    outline: 1px solid slategrey;
+  }
+  
+
 `;
 
 
@@ -330,6 +353,7 @@ export const Card = styled(Block) <CardProps>`
     width: 100%;
     height: auto;
     display: block;
+    min-height: 0;
     background-color: ${({ bg }) => {
         return (
             bg === 'primary' ? theme.colors.primary :
@@ -360,7 +384,7 @@ export const Card = styled(Block) <CardProps>`
 // ===================== CONTAINER =====================
 export interface ContainerProps {
     size?: 'sm' | 'md' | 'lg' | 'xl' | 'xxl';
-    autoX?: boolean;
+    autox?: number;
     fullwidth?: number; // use number to avoid "Not boolean error"
 }
 
@@ -377,9 +401,9 @@ export const Container = styled(Block) <ContainerProps>`
                 );
             }
         };
-        margin: ${({ autoX }) => {
+        margin: ${({ autox }) => {
             return (
-                autoX ? '0 auto' : ''
+                autox ? '0 auto' : ''
             );
         }}
 `;
@@ -394,6 +418,7 @@ export interface AbsoluteProps {
     right?: string;
     top?: string;
     bottom?: string;
+    iscenter?: number;
 }
 
 export const Absolute = styled(Wrapper)<AbsoluteProps>`
@@ -402,5 +427,86 @@ export const Absolute = styled(Wrapper)<AbsoluteProps>`
     right: ${({right}) => right || 'auto'};
     top: ${({top}) => top || 'auto'};
     bottom: ${({bottom}) => bottom || 'auto'};
+    ${({iscenter}) => {
+        return iscenter && `transform: translate(-50%, -50%);`
+    }}
 `
 
+const spinAnimation = keyframes`
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+`;
+
+export const Spinner = styled(Block)`
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 4px solid ${theme.colors.primary};
+  border-top-color: ${theme.colors.bodyBg};
+  animation: ${spinAnimation} 0.8s linear infinite;
+`;
+
+export const Modal = styled(Block)`
+    z-index: 9999;
+    width: 100%;
+    height: 100vh;
+    background: rgba(0, 0, 0, .6);
+    position: fixed;
+    left: 0;
+    top: 0;
+   
+`
+
+export const GridItem = styled(Wrapper)`
+    min-width: 0;
+    min-height: 0;
+    transition: all .2s linear;
+    cursor: pointer;
+    overflowY: scroll;
+    overflowX: hidden;
+    &:hover {
+        background: rgba(${theme.colors.blackRGB}, .5);
+        transition: all .2s linear;
+      }
+`
+
+
+export interface LabelProps {
+    required?: number;
+}
+export const Label = styled.span<LabelProps>`
+    display: block;
+    padding: 1.45rem 0 0.6rem 0;
+    font-size: 0.8rem;
+    letter-spacing: 0.045rem;
+    font-weight: 600;
+    color: ${theme.colors.lightText};
+    
+    ${({required}) => {
+        return required && `&:after {
+            content: '*';
+            position: relative;
+            margin-left: 0.25rem;
+            color: ${theme.colors.danger};
+        }`
+    }}
+`
+
+export const TextField = styled.input`
+    box-sizing: border-box;
+    display: block;
+    padding: 0.875rem 1.045rem;
+    font-size: 0.95rem;
+    border: none;
+    outline: none;
+    width: 100%;
+    color: #92929F;
+    background: ${theme.colors.black};
+    letter-spacing: 0.05rem;
+    transition: all .2s linear;
+    border-radius: ${theme.radius.SM};
+    &:focus {
+        background: #2B2B40;
+        transition: all .2s linear;
+    }
+`

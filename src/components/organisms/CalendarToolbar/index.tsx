@@ -28,6 +28,8 @@ const CalendarToolbar = ({
     
     return (
         <FlexBox px="2rem" py={'2.5rem'}>
+
+            {/* ========== Increase, Reduce and Today buttons ========== */}
             <FlexBox>
                 <Wrapper>
                     <Button group={"first"} py={'0.8rem'} bg={'black'} onClick={onReduceDateTime}>
@@ -45,14 +47,19 @@ const CalendarToolbar = ({
                     </Button>
                 </Wrapper>
             </FlexBox>
+            {/* ========== Increase, Reduce and Today buttons ENDS ========== */}
+
+            {/* ========== Date format ========== */}
             {view === 'month' && <Typography>{currentDateTime.format('MMMM YYYY')}</Typography>}
             {view === 'week' && <Typography>{currentDateTime.clone().startOf('week').format('MMM D')} – {currentDateTime.clone().endOf('week').format('MMM D, YYYY')}</Typography>}
             {view === 'day' && <Typography>{currentDateTime.format('MMMM D, YYYY')}</Typography>}
-            {/* ========== CHANGE VIEW (day, month, week) ========== */}
+            {/* ========== Date format ENDS ========== */}
+
+            {/* ========== Change view (day, month, week) ========== */}
             <Typography>
                 <Wrapper>
                     <Button 
-                        group={"first"} 
+                        // group={"first"} 
                         py={'0.8rem'} 
                         px={'1rem'} 
                         bg={'black'} 
@@ -61,7 +68,7 @@ const CalendarToolbar = ({
                     >
                         <Typography alpha={view === 'month' ? 0.5 : 1}>Month</Typography>
                     </Button>
-                    <Button 
+                    {/* <Button 
                         group={"between"} 
                         py={'0.8rem'} 
                         px={'1rem'} 
@@ -80,10 +87,10 @@ const CalendarToolbar = ({
                         onClick={() => handleChangeView('day')}
                     >
                         <Typography alpha={view === 'day' ? 0.5 : 1}>Day</Typography>
-                    </Button>
+                    </Button> */}
                 </Wrapper>
             </Typography>
-            {/* ========== END OF CHANGE VIEW  ========== */}
+            {/* ========== Change view ENDS  ========== */}
         </FlexBox>
     )
 }

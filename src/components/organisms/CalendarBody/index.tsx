@@ -1,68 +1,61 @@
-import { getMonthDays } from "../../../utils/generators";
-import { Container, Wrapper } from "../../styled";
+import { Container } from "../../styled";
+import { CalendarView, CalendarEvent } from "../Calendar";
+import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import { UniqueIdentifier } from "@dnd-kit/core";
+
 import DaysCaption from "../DaysCaption";
 import CalendarCell from "../CalendarCell";
-import { HolidaysObject, CalendarView, Holiday, CalendarEvents } from "../Calendar";
 import moment, { Moment } from "moment";
-import { useEffect, useState } from "react";
 import CalendarTask from "../CalendarTask";
 
 interface CalendarBodyProps {
     view: CalendarView;
     currentDateTime: Moment;
-    holidays: HolidaysObject;
-    events: CalendarEvents;
+    events: CalendarEvent[];
+    activeId: UniqueIdentifier | null;
+    days: Moment[];
+    onShowCreationModal: (day: Moment) => void
 }
 
 const CalendarBody = ({
-    view,
     currentDateTime,
-    holidays,
     events,
+    activeId,
+    days,
+    onShowCreationModal,
 }: CalendarBodyProps) => {
-    // Getting array of days for current month
-    const monthDays = getMonthDays(
-        currentDateTime.year(),
-        currentDateTime.month()
-    );
-    const [days, setDays] = useState(monthDays);
-
-    useEffect(() => {
-        setDays(monthDays);
-    }, [currentDateTime]);
-
     return (
-        <Container px="2rem" pb={'2rem'}>
+        <Container px="2rem" pb={'2rem'} >
             <DaysCaption />
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)' }}>
-                {days.map((day) => (
-                    <Wrapper key={day.format('YYYY-MM-DD')}>
-                        <CalendarCell
-                            day={day.get('D')}
-                            isBlind={
-                                day.isBefore(currentDateTime.startOf('month')) ||
-                                day.isAfter(currentDateTime.endOf('month'))
-                            }
-                            isToday={day.isSame(moment(), 'day')}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)' }}>
+                    {days.map((day, i) => (
+                        <SortableContext 
+                            items={events.filter((e) => e.date.isSame(day, 'day'))} 
+                            id={`${i}`} 
+                            strategy={verticalListSortingStrategy}
                         >
-                            {holidays[day.format('YYYY-MM-DD')] && (
-                                <CalendarTask>
-                                    {holidays[day.format('YYYY-MM-DD')].name}
-                                </CalendarTask>
-                            )}
-                            {events[day.format('YYYY-MM-DD')] && (
-                                <>
-                                    {events[day.format('YYYY-MM-DD')].map((item, n) => (
-                                        <CalendarTask key={n}>
-                                            {item.task.title}
-                                        </CalendarTask>
-                                    ))}
-                                </>
-                            )}
+                        <CalendarCell
+                            key={day.format('YYYY-MM-DD')}
+                            id={i}
+                            day={day}
+                            isBlind={day.isBefore(currentDateTime.startOf('month')) ||
+                                day.isAfter(currentDateTime.endOf('month'))}
+                            isToday={day.isSame(moment(), 'day')}
+                            onAddEvent={(day: Moment) => {onShowCreationModal(day)}}
+                        >
+                            {
+                                events.length ? events.filter((event) => day.isSame(event.date, 'day') ).map((item) => (
+                                    activeId !== item.id ? <CalendarTask 
+                                                                key={item.id} 
+                                                                id={item.id} 
+                                                                data={events.find(event => event.id === item.id) || null} 
+                                                            /> : <></>
+                                )) : <></>
+                            }
                         </CalendarCell>
-                    </Wrapper>
-                ))}
-            </div>
+                    </SortableContext>
+                    ))}
+                </div>
         </Container>
     );
 };
