@@ -1,4 +1,4 @@
-import styled, { css } from 'styled-components';
+import styled, { css, keyframes } from 'styled-components';
 
 // THEME
 
@@ -23,7 +23,6 @@ const theme = {
         blackRGB: '23, 23, 36',
         grayRGB: '43, 43, 64',
         bodyColor: '#FFFFFF',
-        bodyColorRGB: '255 255 255',
         bodyBg: '#1e1e2d',
         bodyBgRGB: '30, 30, 45',
         emphasisColor: '#F9F9F9',
@@ -330,6 +329,7 @@ export const Card = styled(Block) <CardProps>`
     width: 100%;
     height: auto;
     display: block;
+    min-height: 0;
     background-color: ${({ bg }) => {
         return (
             bg === 'primary' ? theme.colors.primary :
@@ -360,7 +360,7 @@ export const Card = styled(Block) <CardProps>`
 // ===================== CONTAINER =====================
 export interface ContainerProps {
     size?: 'sm' | 'md' | 'lg' | 'xl' | 'xxl';
-    autoX?: boolean;
+    autoX?: number;
     fullwidth?: number; // use number to avoid "Not boolean error"
 }
 
@@ -394,6 +394,7 @@ export interface AbsoluteProps {
     right?: string;
     top?: string;
     bottom?: string;
+    iscenter?: number;
 }
 
 export const Absolute = styled(Wrapper)<AbsoluteProps>`
@@ -402,5 +403,79 @@ export const Absolute = styled(Wrapper)<AbsoluteProps>`
     right: ${({right}) => right || 'auto'};
     top: ${({top}) => top || 'auto'};
     bottom: ${({bottom}) => bottom || 'auto'};
+    ${({iscenter}) => {
+        return iscenter && `transform: translate(-50%, -50%);`
+    }}
 `
 
+const spinAnimation = keyframes`
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+`;
+
+export const Spinner = styled(Block)`
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 4px solid ${theme.colors.primary};
+  border-top-color: ${theme.colors.bodyBg};
+  animation: ${spinAnimation} 0.8s linear infinite;
+`;
+
+export const Modal = styled(Block)`
+    z-index: 9999;
+    width: 100%;
+    height: 100vh;
+    background: rgba(0, 0, 0, .6);
+    position: fixed;
+    left: 0;
+    top: 0;
+   
+`
+
+export const GridItem = styled(Wrapper)`
+    min-width: 0;
+    min-height: 0;
+    overflow: visible;
+`
+
+
+export interface LabelProps {
+    required?: number;
+}
+export const Label = styled.span<LabelProps>`
+    display: block;
+    padding: 1.45rem 0 0.6rem 0;
+    font-size: 0.8rem;
+    letter-spacing: 0.045rem;
+    font-weight: 600;
+    color: ${theme.colors.lightText};
+    
+    ${({required}) => {
+        return required && `&:after {
+            content: '*';
+            position: relative;
+            margin-left: 0.25rem;
+            color: ${theme.colors.danger};
+        }`
+    }}
+`
+
+export const TextField = styled.input`
+    box-sizing: border-box;
+    display: block;
+    padding: 0.875rem 1.045rem;
+    font-size: 0.95rem;
+    border: none;
+    outline: none;
+    width: 100%;
+    color: #92929F;
+    background: ${theme.colors.black};
+    letter-spacing: 0.05rem;
+    transition: all .2s linear;
+    border-radius: ${theme.radius.SM};
+    &:focus {
+        background: #2B2B40;
+        transition: all .2s linear;
+    }
+`
