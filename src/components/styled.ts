@@ -2,7 +2,7 @@ import styled, { css, keyframes } from 'styled-components';
 
 // THEME
 
-const theme = {
+export const theme = {
     colors: {
         primary: '#009EF7',
         secondary: '#E1E3EA',
@@ -39,6 +39,7 @@ const theme = {
         dangerText: '#ea868f',
         lightText: '#F9F9F9',
         darkText: '#E1E3EA',
+        transparent: 'transparent'
     },
     breakpoints: {
         XS: 0,
@@ -99,50 +100,73 @@ export interface BlockProps {
     alpha?: number;
 }
 
-export const Block = styled.div<BlockProps>` 
+export const Block = styled.div<BlockProps>`
   overflow: hidden;
   box-sizing: border-box;
-  margin: ${({ mx, my, mt, mb }) =>
-        `${my || mt || '0'} ${mx || '0'} ${my || mb || '0'}`};
-  padding: ${({ px, py, pt, pb }) =>
-        `${py || pt || '0'} ${px || '0'} ${py || pb || '0'}`};
-  width: ${({fullwidth, w}) => {
-    return w ? w : fullwidth ? '100%' : 'auto';
+  margin: ${({ mx, my, mt, mb }) => `${my || mt || '0'} ${mx || '0'} ${my || mb || '0'}`};
+  padding: ${({ px, py, pt, pb }) => `${py || pt || '0'} ${px || '0'} ${py || pb || '0'}`};
+  width: ${({ fullwidth, w }) => (w ? w : fullwidth ? '100%' : 'auto')};
+  height: ${({ h }) => (h ? h : 'auto')};
+  border-color: ${({ bordercolor, borderalpha }) => {
+    return bordercolor === 'primary'
+      ? `rgba(${theme.colors.primaryRGB}, ${borderalpha || 1})`
+      : bordercolor === 'success'
+      ? `rgba(${theme.colors.successRGB}, ${borderalpha || 1})`
+      : bordercolor === 'info'
+      ? `rgba(${theme.colors.infoRGB}, ${borderalpha || 1})`
+      : bordercolor === 'warning'
+      ? `rgba(${theme.colors.warningRGB}, ${borderalpha || 1})`
+      : bordercolor === 'danger'
+      ? `rgba(${theme.colors.dangerRGB}, ${borderalpha || 1})`
+      : bordercolor === 'dark'
+      ? `rgba(${theme.colors.darkRGB}, ${borderalpha || 1})`
+      : bordercolor === 'black'
+      ? `rgba(${theme.colors.blackRGB}, ${borderalpha || 1})`
+      : bordercolor === 'gray'
+      ? `rgba(${theme.colors.grayRGB}, ${borderalpha || 1})`
+      : `rgba(${theme.colors.secondaryRGB}, .05 )`;
   }};
-  height: ${({h}) => {
-    return h ? h : 'auto';
-  }};
-  border-color: ${({bordercolor, borderalpha}) => {
-    return bordercolor === 'primary' ? `rgba(${theme.colors.primaryRGB}, ${borderalpha || 1})` :
-                bordercolor === 'success' ? `rgba(${theme.colors.successRGB}, ${borderalpha || 1})` :
-                    bordercolor === 'info' ? `rgba(${theme.colors.infoRGB}, ${borderalpha || 1})` :
-                        bordercolor === 'warning' ? `rgba(${theme.colors.warningRGB}, ${borderalpha || 1})` :
-                            bordercolor === 'danger' ? `rgba(${theme.colors.dangerRGB}, ${borderalpha || 1})` :
-                                bordercolor === 'dark' ? `rgba(${theme.colors.darkRGB}, ${borderalpha || 1})` :
-                                    bordercolor === 'black' ? `rgba(${theme.colors.blackRGB}, ${borderalpha || 1})` :
-                                        bordercolor === 'gray' ? `rgba(${theme.colors.grayRGB}, ${borderalpha || 1})` : `rgba(${theme.colors.secondaryRGB}, .05 )`
-  }};
-  border-width: ${({borderwidth}) => {
-    return borderwidth ? borderwidth : 'none';
-  }};
-  border-style: ${({borderstyle}) => {
-    return borderstyle ? borderstyle : 'none';
-  }};
+  border-width: ${({ borderwidth }) => (borderwidth ? borderwidth : '0')};
+  border-style: ${({ borderstyle }) => (borderstyle ? borderstyle : 'none')};
   position: relative;
   background: ${({ bg, alpha }) => {
-    return bg === 'primary' ? `rgba(${theme.colors.primaryRGB}, ${alpha || 1})` :
-                bg === 'success' ? `rgba(${theme.colors.successRGB}, ${alpha || 1})` :
-                    bg === 'info' ? `rgba(${theme.colors.infoRGB}, ${alpha || 1})` :
-                        bg === 'warning' ? `rgba(${theme.colors.warningRGB}, ${alpha || 1})` :
-                            bg === 'danger' ? `rgba(${theme.colors.dangerRGB}, ${alpha || 1})` :
-                                bg === 'dark' ? `rgba(${theme.colors.darkRGB}, ${alpha || 1})` :
-                                    bg === 'black' ? `rgba(${theme.colors.blackRGB}, ${alpha || 1})` :
-                                        bg === 'gray' ? `rgba(${theme.colors.grayRGB}, ${alpha || 1})` :
-                                            bg === 'transparent' ? `transparent` : `transparent`
-    }};
+    return bg === 'primary'
+      ? `rgba(${theme.colors.primaryRGB}, ${alpha || 1})`
+      : bg === 'success'
+      ? `rgba(${theme.colors.successRGB}, ${alpha || 1})`
+      : bg === 'info'
+      ? `rgba(${theme.colors.infoRGB}, ${alpha || 1})`
+      : bg === 'warning'
+      ? `rgba(${theme.colors.warningRGB}, ${alpha || 1})`
+      : bg === 'danger'
+      ? `rgba(${theme.colors.dangerRGB}, ${alpha || 1})`
+      : bg === 'dark'
+      ? `rgba(${theme.colors.darkRGB}, ${alpha || 1})`
+      : bg === 'black'
+      ? `rgba(${theme.colors.blackRGB}, ${alpha || 1})`
+      : bg === 'gray'
+      ? `rgba(${theme.colors.grayRGB}, ${alpha || 1})`
+      : bg === 'transparent'
+      ? `transparent`
+      : `transparent`;
+  }};
   &:not(:last-child) {
     border-right: none;
   }
+  &::-webkit-scrollbar {
+    width: 0
+  }
+   
+  &::-webkit-scrollbar-track {
+    box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+  }
+   
+  &::-webkit-scrollbar-thumb {
+    background-color: ${theme.colors.primary};
+    outline: 1px solid slategrey;
+  }
+  
+
 `;
 
 
@@ -360,7 +384,7 @@ export const Card = styled(Block) <CardProps>`
 // ===================== CONTAINER =====================
 export interface ContainerProps {
     size?: 'sm' | 'md' | 'lg' | 'xl' | 'xxl';
-    autoX?: number;
+    autox?: number;
     fullwidth?: number; // use number to avoid "Not boolean error"
 }
 
@@ -377,9 +401,9 @@ export const Container = styled(Block) <ContainerProps>`
                 );
             }
         };
-        margin: ${({ autoX }) => {
+        margin: ${({ autox }) => {
             return (
-                autoX ? '0 auto' : ''
+                autox ? '0 auto' : ''
             );
         }}
 `;
@@ -436,7 +460,14 @@ export const Modal = styled(Block)`
 export const GridItem = styled(Wrapper)`
     min-width: 0;
     min-height: 0;
-    overflow: visible;
+    transition: all .2s linear;
+    cursor: pointer;
+    overflowY: scroll;
+    overflowX: hidden;
+    &:hover {
+        background: rgba(${theme.colors.blackRGB}, .5);
+        transition: all .2s linear;
+      }
 `
 
 

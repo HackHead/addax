@@ -15,14 +15,15 @@ body {
   /* Internet Explorer/Edge */
   user-select: none;
 }
-::-webkit-scrollbar-track {
-  background-color: #00c6ff;
+body::-webkit-scrollbar {
+  width: 0.5em;
 }
-
-::-webkit-scrollbar-thumb {
-  background-color: #999999;
+ 
+body::-webkit-scrollbar-track {
+  box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
 }
-
-::-webkit-scrollbar-thumb:hover {
-  background-color: #666666;
+ 
+body::-webkit-scrollbar-thumb {
+  background-color: darkgrey;
+  outline: 1px solid slategrey;
 }
