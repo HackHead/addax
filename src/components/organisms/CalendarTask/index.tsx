@@ -1,19 +1,45 @@
 import { ReactNode } from "react"
-import { Absolute, Card, FlexBox, Typography } from "../../styled"
+import { Card, FlexBox, Typography, Wrapper,Absolute } from "../../styled"
+import { useSortable } from "@dnd-kit/sortable";
+import {CSS} from '@dnd-kit/utilities'
+import { UniqueIdentifier } from "@dnd-kit/core";
+import { CalendarEvent } from "../Calendar";
 
 export interface CalendarTaskProps {
     children?: ReactNode;
-}
+    id: UniqueIdentifier;
+    data: CalendarEvent | null;
+}   
 
-const CalendarTask = ({children}: CalendarTaskProps) => {
+const CalendarTask = ({ id, data }: CalendarTaskProps) => {
+    const {
+        attributes,
+        listeners,
+        setNodeRef,
+        transform,
+        transition,
+    } = useSortable({id})    
+    
+    const style = {
+        transform: CSS.Transform.toString(transform),
+        transition,
+        cursor: 'pointer',
+        zIndex: 999,
+        overflow: 'auto',
+    }
+    
     return (
-        <Absolute right="0" top="2rem" w="100%" px={'0.1rem'}>
-            <Card bg="gray" px="1rem" py="0.5rem">
+        <Wrapper mt="0.4rem" 
+            
+            style={data?.isDraggable ? style : {}} 
+            ref={data?.isDraggable ? setNodeRef : null}>
+            <Card bg={data?.isDraggable ? 'gray' : 'danger'} px="1rem" py="0.5rem" {...(data?.isDraggable ? attributes : {})} 
+            {...(data?.isDraggable ? listeners : {})} >
                 <FlexBox justifycontent="flex-start" alignitems="center">
-                    <Typography size="sm" elipsis={+true}>{children}</Typography>
+                    <Typography size="sm" elipsis={+true}>{data?.task?.title}</Typography>
                 </FlexBox>
             </Card>
-        </Absolute>
+        </Wrapper>
     )
 }
 
