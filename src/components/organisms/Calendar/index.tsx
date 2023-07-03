@@ -252,7 +252,7 @@ const Calendar = () => {
     // Call fetchHolidays only when the year is being changed, to reduce number 
     // of requests to the API
     useEffect(() => {
-        fetchHolidays();
+        // fetchHolidays();
     }, [currentDateTime.year()]);
     return (
         <DndContext onDragEnd={handleDragEnd} onDragStart={handleDragStart} collisionDetection={closestCenter}>

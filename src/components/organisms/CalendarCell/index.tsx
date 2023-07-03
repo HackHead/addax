@@ -24,6 +24,11 @@ const CalendarCell = ({
         id,
     })
 
+    const handleGridClick = (e: React.MouseEvent<HTMLDivElement>) => {
+        e.stopPropagation();
+        onAddEvent(day);
+    }
+    
     return (
         <GridItem
             ref={setNodeRef}
@@ -34,7 +39,7 @@ const CalendarCell = ({
             alpha={0.07}
             bg={isToday ? 'success' : 'transparent'}
             style={{paddingTop: '1.4rem'}}
-            onClick={() => onAddEvent(day)}
+            onClick={handleGridClick}
         >
             <Absolute right="0.4rem" top="0.4rem">
                 <Typography 

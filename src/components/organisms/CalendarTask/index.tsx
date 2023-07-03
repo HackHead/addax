@@ -1,5 +1,12 @@
+import { 
+  Card, 
+  FlexBox, 
+  Typography, 
+  Wrapper, 
+  Absolute, 
+  TextField
+} from "../../styled";
 import { ReactNode } from "react";
-import { Card, FlexBox, Typography, Wrapper, Absolute } from "../../styled";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from '@dnd-kit/utilities';
 import { UniqueIdentifier } from "@dnd-kit/core";
@@ -12,6 +19,7 @@ export interface CalendarTaskProps {
 }
 
 const CalendarTask = ({ id, data }: CalendarTaskProps) => {
+  const { labels, isDraggable, isHoliday, task } = data || {};
   const {
     attributes,
     listeners,
@@ -27,32 +35,34 @@ const CalendarTask = ({ id, data }: CalendarTaskProps) => {
     cursor: 'pointer',
   };
 
-  const labelsLength = data?.labels?.length;
+  const labelsLength = labels?.length ?? 0;
 
   return (
     <Wrapper mt="0.4rem"
-      style={data?.isDraggable ? style : {}}
-      ref={data?.isDraggable ? setNodeRef : null}
+      style={isDraggable ? style : {}}
+      ref={isDraggable ? setNodeRef : null}
     >
-      {labelsLength ? data?.labels?.map(({ color, id }, i) => {
+      {Array.isArray(labels) && labelsLength > 0 && labels?.map(({ color, id }, i) => {
         return (
           <Absolute key={id} top="0" left={`${i * (100 / labelsLength)}%`} style={{ zIndex: 9999 }} w={'100%'}>
             <Wrapper h="0.2rem" w={`${100 / labelsLength}%`} bg={color}></Wrapper>
           </Absolute>
         );
-      }) : <></>}
-      <Card
+      })}
+      {/* <Card
         py="0.5rem"
         px="1rem"
-        bg={data?.isHoliday ? 'danger' : 'gray'}
-        {...(data?.isDraggable ? attributes : {})}
-        {...(data?.isDraggable ? listeners : {})}
+        bg={isHoliday ? 'danger' : 'gray'}
+        {...(isDraggable ? attributes : {})}
+        {...(isDraggable ? listeners : {})}
       >
         <FlexBox justifycontent="flex-start" alignitems="center">
-          <Typography size="sm" elipsis={+true}>{data?.task?.title}</Typography>
+          <Typography size="sm" elipsis={+true}>{task?.title}</Typography>
         </FlexBox>
+      </Card> */}
+      <Card>
+        <TextField value="23409802934" onChange={() => {}}/>
       </Card>
-      
     </Wrapper>
   );
 };
