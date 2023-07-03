@@ -6,6 +6,11 @@ export interface CalendarTaskProps {
 }
 
 const CalendarTask = ({children}: CalendarTaskProps) => {
+
+    const calculatePosition = () => {
+        
+    }
+    
     return (
         <Absolute right="0" top="2rem" w="100%" px={'0.1rem'}>
             <Card bg="gray" px="1rem" py="0.5rem">
