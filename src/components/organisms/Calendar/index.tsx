@@ -1,20 +1,24 @@
-import { useEffect, useState } from "react";
-import { Button, Typography, FlexBox, Card, Container, Delimiter, Wrapper, Spinner } from "../../styled";
+import { useEffect, useState, useRef } from "react";
+import { Button, Typography, FlexBox, Card, Container, Delimiter, Wrapper, Spinner, type ColorVariant, TextField } from "../../styled";
 import CalendarBody from "../CalendarBody";
 import CalendarToolbar from "../CalendarToolbar";
 import moment, { Moment } from "moment";
 import { NAGER_API } from "../../../http";
-import { AdjustmentsVerticalIcon, ArrowDownTrayIcon, ArrowUpTrayIcon, PlusIcon, } from "@heroicons/react/20/solid";
+import { ArrowDownTrayIcon, ArrowUpTrayIcon, CameraIcon, } from "@heroicons/react/20/solid";
 import { exportSchema, importSchema } from "../../../utils/dataHandlers";
-import { DndContext, DragEndEvent, DragOverlay, DragStartEvent, UniqueIdentifier, closestCenter, closestCorners, pointerWithin } from '@dnd-kit/core';
+import { DndContext, DragEndEvent, DragOverlay, DragStartEvent, UniqueIdentifier, closestCenter } from '@dnd-kit/core';
 import ModalWindow from "../Modals/CreateEvent";
 import CalendarTask from "../CalendarTask";
 import { arrayMove } from "@dnd-kit/sortable";
 import { getMonthDays } from "../../../utils/generators";
 import { v4 as uuidv4 } from 'uuid';
 import isUUID from "../../../utils/validators";
+import { seedEvents } from "../../../data/seed";
+import { takeScreenshot } from "../../../utils/takeScreenshot";
+import { theme } from "../../styled";
 
 export type CalendarView = 'day' | 'week' | 'month';
+
 export interface Holiday {
     date: string;
     localName: string;
@@ -31,7 +35,8 @@ export interface HolidaysObject {
 }
 
 export interface EventLabel {
-    color: string;
+    color: ColorVariant;
+    id: string;
     text: string;
 }
 
@@ -40,7 +45,7 @@ export interface CalendarEvent {
     isFilterable: boolean;
     isDraggable: boolean;
     date: Moment;
-    labels?: EventLabel[];
+    labels: EventLabel[];
     task: {
         title: string;
         description?: string;
@@ -53,32 +58,36 @@ export interface CalendarEvents {
 }
 
 const Calendar = () => {
-    const temp2 = [
-        { id: uuidv4(), isDraggable: true, isFilterable: true, date: moment('2023-07-06'), task: { title: 'Wake up', description: '' }, labels: [] },
-        { id: uuidv4(), isDraggable: true, isFilterable: true, date: moment('2023-07-06'), task: { title: 'Have breakfast', description: '' }, labels: [] },
-        { id: uuidv4(), isDraggable: true, isFilterable: true, date: moment('2023-07-06'), task: { title: 'Conquer the world', description: '' }, labels: [] },
-        { id: uuidv4(), isDraggable: true, isFilterable: true, date: moment('2023-07-07'), task: { title: 'Learn react2', description: '' }, labels: [] },
-        { id: uuidv4(), isDraggable: true, isFilterable: true, date: moment('2023-07-28'), task: { title: 'Learn react5', description: '' }, labels: [] },
-        { id: uuidv4(), isDraggable: true, isFilterable: true, date: moment('2023-07-28'), task: { title: 'Learn react6', description: '' }, labels: [] },
-    ];
-
+    const exportRef = useRef<HTMLDivElement>(null);
+    const [labels, setLabels] = useState<EventLabel[]>([
+        { id: uuidv4(), color: 'primary', text: 'New'},
+        { id: uuidv4(), color: 'danger', text: 'In Progress'},
+        { id: uuidv4(), color: 'info', text: 'Fixed'},
+        { id: uuidv4(), color: 'success', text: 'Closed'},
+        { id: uuidv4(), color: 'warning', text: 'Archive'},
+    ]);
     const [view, setView] = useState<CalendarView>('month')
     const [currentDateTime, setCurrentDatetime] = useState<Moment>(moment());
-    const [events, setEvents] = useState<CalendarEvent[]>(temp2);
+    const [events, setEvents] = useState<CalendarEvent[]>(seedEvents);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [isVisibleModal, setIsOpenModal] = useState<boolean>(false);
     const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
-    
+    const [textFilter, setTextFilter] = useState<string>('')
+    const [selectedDate, setSelectedDate] = useState<Moment | null>(null);
+
+    const regex = new RegExp(textFilter, 'ig');
+
     const monthDays = getMonthDays(
         currentDateTime.year(),
         currentDateTime.month()
     );
+
     const [days, setDays] = useState<Moment[]>(monthDays);
 
     useEffect(() => {
         setDays(monthDays);
     }, [currentDateTime]);
-    
+
     const handleViewChange = (newView: CalendarView) => {
         setView(newView);
     }
@@ -128,21 +137,21 @@ const Calendar = () => {
         } catch (error) {
             console.error(error);
         }
-    };
+    }
+
     const exportEvents = async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         exportSchema(e, events)
     }
+
     const handleDragStart = (e: DragStartEvent) => {
         const { active } = e;
         const { id } = active;
 
         setActiveId(id);
     }
-    const handleOpenModal = () => {
-        setIsOpenModal(true)
-    }
     const handleCloseModal = () => {
-        setIsOpenModal(false)
+        setIsOpenModal(false);
+        setSelectedDate(null)
     }
     const fetchHolidays = async () => {
         try {
@@ -183,79 +192,133 @@ const Calendar = () => {
     const handleDragEnd = (e: DragEndEvent) => {
         const { active, over } = e;
         if (!over?.id || !active?.id) {
-          return;
+            return;
         }
-      
-        
+
+
         if (typeof over.id === 'string' && isUUID(over.id)) {
             const oldIndex = events.findIndex((e) => e.id === active.id);
-          const newIndex = events.findIndex((e) => e.id === over.id);
-          if (oldIndex !== newIndex) {
-            setEvents(arrayMove(events, oldIndex, newIndex));
-          }
+            const newIndex = events.findIndex((e) => e.id === over.id);
+            if (oldIndex !== newIndex) {
+                setEvents(arrayMove(events, oldIndex, newIndex));
+            }
 
         } else if (typeof over.id === 'number') {
             const oldIndex = events.findIndex((e) => e.id === active.id);
             const newDate = days[over.id];
             const eventsCopy = [...events];
-            
+
             eventsCopy[oldIndex] = { ...eventsCopy[oldIndex], date: newDate };
             setEvents(eventsCopy);
         }
-      
-        setActiveId(null);
-      };
 
+        setActiveId(null);
+    };
+    const getFilteredEvents = () => {
+        return events.filter(event => {
+            if (event.isHoliday) {
+                return true;
+            } else {
+                return event.task.title.match(regex);
+            }
+        });
+    };
+    const createEvent = (name: string, lbls: string[]) => {
+        if (selectedDate) {
+            const eventLabels = lbls.map((lbl: string) => {
+                return labels.find((label) => label.id === lbl);
+            }) as EventLabel[];
+
+            setEvents([
+                ...events,
+                {
+                    id: uuidv4(),
+                    isDraggable: true,
+                    isFilterable: true,
+                    date: selectedDate,
+                    task: { title: name, description: '' },
+                    labels: eventLabels,
+                },
+            ]);
+        }
+        handleCloseModal();
+    };
+    const handleScreen = () => {
+        exportRef.current && (exportRef.current.style.background = theme.colors.bodyBg)
+        exportRef.current && takeScreenshot(exportRef.current, "screenshot")
+    }
     // Call fetchHolidays only when the year is being changed, to reduce number 
     // of requests to the API
     useEffect(() => {
-        if (false) { fetchHolidays(); }
+        fetchHolidays();
     }, [currentDateTime.year()]);
-
     return (
         <DndContext onDragEnd={handleDragEnd} onDragStart={handleDragStart} collisionDetection={closestCenter}>
-            <DragOverlay>{activeId ? <CalendarTask id={activeId} data={events.find((event) => event.id === activeId) || null} /> : null}</DragOverlay>
-            <ModalWindow isOpen={isVisibleModal} onClose={handleCloseModal} />
+            <DragOverlay>
+                {activeId ?
+                    <CalendarTask
+                        id={activeId}
+                        data={events.find((event) => event.id === activeId) || null}
+                    />
+                    : <></>}
+            </DragOverlay>
+            <ModalWindow
+                isOpen={isVisibleModal}
+                onClose={handleCloseModal}
+                date={selectedDate}
+                onCreate={(name, lbls) => createEvent(name, lbls)}
+                labels={labels}
+            />
             <Container size={'xl'} my={'4rem'} mx={'auto'}>
                 {/* ========== DATA MANAGMENT ========== */}
-                <FlexBox justifycontent="flex-start" alignitems="center">
-                    <Wrapper mb="1rem">
-                        <Button bg="info" px="1rem" onClick={exportEvents} >
-                            <FlexBox>
-                                <Wrapper mx="1rem">
-                                    <Typography >Export</Typography>
-                                </Wrapper>
-                                <ArrowDownTrayIcon style={{ width: '16px', height: '16px' }} />
-                            </FlexBox>
-                        </Button>
-                    </Wrapper>
+                <FlexBox justifycontent="space-between" alignitems="center">
+                    <FlexBox justifycontent="flex-start">
+                        <Wrapper mb="1rem">
+                            <Button bg="info" px="1rem" onClick={exportEvents} >
+                                <FlexBox>
+                                    <Wrapper mx="1rem">
+                                        <Typography >Export</Typography>
+                                    </Wrapper>
+                                    <ArrowDownTrayIcon style={{ width: '16px', height: '16px' }} />
+                                </FlexBox>
+                            </Button>
+                        </Wrapper>
+                        <Wrapper mb="1rem" mx="1rem" >
+                            <Button px="1rem" bg="danger" onClick={importEvents}>
+                                <FlexBox>
+                                    <Wrapper mx="1rem"><Typography >Import</Typography></Wrapper>
+                                    <ArrowUpTrayIcon style={{ width: '16px', height: '16px' }} />
+                                </FlexBox>
+                            </Button>
+                        </Wrapper>
+                    </FlexBox>
                     <Wrapper mb="1rem" mx="1rem" >
-                        <Button px="1rem" bg="danger" onClick={importEvents}>
-                            <FlexBox>
-                                <Wrapper mx="1rem"><Typography >Import</Typography></Wrapper>
-                                <ArrowUpTrayIcon style={{ width: '16px', height: '16px' }} />
-                            </FlexBox>
-                        </Button>
-                    </Wrapper>
+                            <Button px="1rem" bg="warning" onClick={handleScreen}>
+                                <FlexBox>
+                                    <Wrapper mx="1rem"><Typography color="black" >Screenshot</Typography></Wrapper>
+                                    <CameraIcon style={{ width: '16px', height: '16px', color: 'black' }} />
+                                </FlexBox>
+                            </Button>
+                        </Wrapper>
                 </FlexBox>
                 {/* ========== DATA MANAGMENT ENDS ========== */}
 
                 <Card>
                     {/* ========== HEADER ========== */}
-                    <FlexBox px={'2rem'} py={'1.3rem'}>
+                    <FlexBox px={'2rem'} py={'1.3rem'} >
                         <Typography>Calendar</Typography>
-                        <Button bg="primary" px="1rem" onClick={handleOpenModal}>
-                            <FlexBox justifycontent="space-between">
-                                <AdjustmentsVerticalIcon style={{ width: '16px', height: '16px', paddingRight: '1rem' }} />
-                                <Wrapper >
-                                    <Typography >Filters</Typography>
-                                </Wrapper>
-                            </FlexBox>
-                        </Button>
+                        <Wrapper>
+                            <TextField
+                                placeholder="Type something..."
+                                value={textFilter}
+                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => { setTextFilter(e.target.value) }}
+                            />
+                        </Wrapper>
+
                     </FlexBox>
                     <Delimiter />
                     {/* ========== HEADER ENDS ========== */}
-
+                    <div ref={exportRef} >
                     {/* ========== TOOLBAR ========== */}
                     <CalendarToolbar
                         view={view}
@@ -275,14 +338,17 @@ const Calendar = () => {
                             </FlexBox>
                         </Wrapper>
                         :
-                        <CalendarBody
-                            view={view}
-                            currentDateTime={currentDateTime}
-                            events={events}
-                            activeId={activeId}
-                            days={days}
-                        />
-                    }
+                        
+                            <CalendarBody
+                                view={view}
+                                currentDateTime={currentDateTime}
+                                events={getFilteredEvents()}
+                                activeId={activeId}
+                                days={days}
+                                onShowCreationModal={(day) => { setIsOpenModal(true); setSelectedDate(day) }}
+                            />
+                        }
+                    </div>
                     {/* ========== PRELOADER ENDS ========== */}
                 </Card>
             </Container>
