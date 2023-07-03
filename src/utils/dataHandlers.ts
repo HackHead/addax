@@ -21,6 +21,7 @@ export const exportSchema = (event: React.MouseEvent<HTMLButtonElement, MouseEve
 // ...
 
 export const importSchema = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>): Promise<CalendarEvent[] | null> => {
+    console.log(e)
     return new Promise((resolve, reject) => {
       const fileInput = document.createElement("input");
       fileInput.type = "file";

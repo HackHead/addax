@@ -59,7 +59,9 @@ export interface CalendarEvents {
 
 const Calendar = () => {
     const exportRef = useRef<HTMLDivElement>(null);
-    const [labels, setLabels] = useState<EventLabel[]>([
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const [labels,] = useState<EventLabel[]>([
         { id: uuidv4(), color: 'primary', text: 'New'},
         { id: uuidv4(), color: 'danger', text: 'In Progress'},
         { id: uuidv4(), color: 'info', text: 'Fixed'},

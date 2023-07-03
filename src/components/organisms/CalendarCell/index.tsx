@@ -2,7 +2,6 @@ import { useDroppable } from "@dnd-kit/core";
 import { Absolute, Typography, GridItem} from "../../styled"
 import { ReactNode } from "react";
 import { Moment } from "moment";
-import { useState } from "react";
 
 export interface CalendarCellProps {
     day: Moment;
@@ -21,7 +20,6 @@ const CalendarCell = ({
     id,
     onAddEvent
 }: CalendarCellProps) => {
-    const [isActive, setActive] = useState<boolean>(false);
     const {setNodeRef} = useDroppable({
         id,
     })

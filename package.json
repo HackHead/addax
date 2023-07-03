@@ -1,15 +1,15 @@
 {
-  "homepage": "https://HackHead.github.io/addax",
+  "homepage": "http://HackHead.github.io/addax",
   "name": "addax",
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d build",
+    "deploy": "gh-pages -d dist -m 'Deploy React app to GitHub Pages' c",
     "dev": "vite",
     "build": "tsc && vite build",
-    "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "lint": "eslint --no-error-on-unmatched-pattern src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
   },
   "dependencies": {

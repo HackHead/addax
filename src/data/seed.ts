@@ -9,7 +9,7 @@ export const seedEvents: CalendarEvent[] = [
         isFilterable: true,
         date: moment('2023-07-06'),
         task: { title: 'Wake up', description: '' },
-        labels: [{ id: uuidv4(), color: 'primary' }, { id: uuidv4(), color: 'info' }],
+        labels: [{ id: uuidv4(), color: 'primary', text: '' }, { id: uuidv4(), color: 'info', text: '' }],
     },
     {
         id: uuidv4(),
